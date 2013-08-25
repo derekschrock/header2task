@@ -7,7 +7,7 @@ if [ -t 0 ]; then
 			'BEGIN { gsub(/ /, "\\ ", d); printf "%s", d }')"
 	printf "%s" "push <pipe-message>mutt2task\\ '$description'<enter>"
 else
-	message_id="$(awk -F"[<>]" '/^Message-ID: / { print $2; exit }')"
+	message_id="$(awk -F"[<>]" '/^[Mm]essage-[Ii][Dd]: / { print $2; exit }')"
 	
 	description="$1"
 	if [ "$description" ] ; then 
