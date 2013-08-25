@@ -3,17 +3,16 @@
 if [ -t 0 ]; then
 	printf "task description: " >&2
 	read description
-	description="$(awk -v d="$description" \
-			'BEGIN { gsub(/ /, "\\ ", d); printf "%s", d }')"
-	printf "%s" "push <pipe-message>mutt2task\\ '$description'<enter>"
+	if [ "$description" ] ; then 
+		description="$(awk -v d="$description" \
+				'BEGIN { gsub(/ /, "\\ ", d); printf "%s", d }')"
+		printf "%s" "push <pipe-message>mutt2task\\ '$description'<enter>"
+	fi
 else
 	message_id="$(awk -F"[<>]" \
 					'tolower($0) ~ /^message-id: / { print $2; exit }')"
-	
 	description="$1"
-	if [ "$description" ] ; then 
-		task_number="$(task add "$description" 2>/dev/null \
-			| awk -F"[ .]" '{ print $3 }')"
-		task "$task_number" annotate "$message_id" 1>/dev/null 2>/dev/null
-	fi
+	task_number="$(task add "$description" 2>/dev/null \
+		| awk -F"[ .]" '{ print $3 }')"
+	task "$task_number" annotate "$message_id" 1>/dev/null 2>/dev/null
 fi
