@@ -1,4 +1,4 @@
-Script to add taskwarrior task from mutt prompting the user for a description and annontating the task with the message's message-id.
+Script to add taskwarrior task from mutt prompting the user for a description and annotate the task with the message's message-id.
 
 add something like this to a muttrc file:
 
