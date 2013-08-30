@@ -1,20 +1,11 @@
 #!/usr/bin/env sh
 
-if [ -t 0 ]; then
-	printf "task description: " >&2
-	read description
-	if [ "$description" ] ; then 
-		description="$(awk -v d="$description" \
-				'BEGIN { gsub(/ /, "\\ ", d); printf "%s", d }')"
-		printf "%s" "push <pipe-message>mutt2task\\ '$description'<enter>"
-	fi
-else
-	description="$1"
-	task_number="$(task add "$description" 2>/dev/null \
-		| awk -F"[ .]" '{ print $3 }')"
-	message_id="$(awk -F"[<>]" \
-					'tolower($0) ~ /^message-id: / { print $2; exit }')"
-	if [ "$message_id" ]; then
-		task "$task_number" annotate "$message_id" 1>/dev/null 2>/dev/null
+message_id="$(awk -F"[<>]" 'tolower($0) ~ /^message-id: / { print $2; exit }')"
+printf "task description: " 1>&2
+read description 0>&2
+if [ "$description" ] ; then 
+	task_number="$(task add "$description" | awk -F"[ .]" '{ print $3 }')"
+	if [ "$task_number" ] && [ "$message_id" ]; then
+			task "$task_number" annotate "$message_id" 1>/dev/null 2>&1
 	fi
 fi
