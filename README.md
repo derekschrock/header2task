@@ -3,5 +3,6 @@ Script to add taskwarrior task from mutt prompting the user for a description an
 add something like this to a muttrc file:
 
 ```muttrc
-macro index,pager ,t '<pipe-message>mutt2task<enter>'
+macro index,pager ,ta '<pipe-message>mutt2task add<enter>'
+macro index,pager ,tf '<pipe-message>mutt2task find<enter>'
 ```
