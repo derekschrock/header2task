@@ -1,11 +1,23 @@
 #!/usr/bin/env sh
 
 message_id="$(awk -F"[<>]" 'tolower($0) ~ /^message-id: / { print $2; exit }')"
-printf "task description: " 1>&2
-read description 0>&2
-if [ "$description" ] ; then 
-	task_number="$(task add "$description" | awk -F"[ .]" '{ print $3 }')"
-	if [ "$task_number" ] && [ "$message_id" ]; then
-			task "$task_number" annotate "$message_id" 1>/dev/null 2>&1
-	fi
-fi
+
+case "$1" in
+	"find") 
+		task "$message_id" list 1>&2
+		read waiting
+		;;
+	"add")
+		printf "task description: " 1>&2
+		read description 0>&2
+		if [ "$description" ] ; then 
+			task_number="$(task add "$description" \
+								| awk -F"[ .]" '{ print $3 }')"
+			if [ "$task_number" ] && [ "$message_id" ]; then
+					task "$task_number" annotate "$message_id" 1>/dev/null 2>&1
+			fi
+		fi
+		;;
+	*)
+		;;
+esac
