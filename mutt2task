@@ -4,8 +4,10 @@ message_id="$(awk -F"[<>]" 'tolower($0) ~ /^message-id: / { print $2; exit }')"
 
 case "$1" in
 	"find") 
-		task "$message_id" list 1>&2
-		read waiting
+		if ! task "$message_id" list 1>&2; then
+			echo "no task found" 1>&2
+		fi
+		return 1
 		;;
 	"add")
 		printf "task description: " 1>&2
