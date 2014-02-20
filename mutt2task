@@ -2,23 +2,54 @@
 
 message_id="$(awk -F"[<>]" 'tolower($0) ~ /^message-id: / { print $2; exit }')"
 
-case "$1" in
-	"find")
-		if ! task "$message_id" list 1>&2; then
-			echo "no task found" 1>&2
+task_find() {
+	if ! task "$message_id" "$1" 1>&2; then
+		echo "no task found" 1>&2
+		return 1
+	fi
+	return 0
+}
+
+task_annotate() {
+	annotations=""
+	while ! [ "$annotations" ]; do
+		printf "Annotations? (leave empty if none): " 1>&2
+		read annotations 0>&2
+		if [ "$annotations" ]; then
+			task status:pending "$message_id" annotate "$annotations"
+			annotations=""
+		else
+			break
 		fi
-		exit 1
-		;;
+	done
+}
+
+case "$1" in
 	"add")
 		printf "task description: " 1>&2
 		read description 0>&2
-		if [ "$description" ] ; then 
+		if [ "$description" ] ; then
 			task_number="$(task add "$description" \
 								| awk -F"[ .]" '{ print $3 }')"
 			if [ "$task_number" ] && [ "$message_id" ]; then
 					task "$task_number" annotate "$message_id" 1>/dev/null 2>&1
 			fi
 		fi
+		;;
+	"annotate")
+		task_annotate
+		;;
+	"done")
+		echo "Finding task $message_id" 1>&2
+		task_annotate
+		if ! task status:pending "$message_id" done 0>&2 1>&2; then
+			echo "can't complete task with id $message_id"
+		fi
+		exit 1
+		;;
+	"find")
+		task_find all
+		exit 1
 		;;
 	*)
 		;;
