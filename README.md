@@ -4,7 +4,8 @@ add something like this to a muttrc file:
 
 ```muttrc
 macro index,pager ,ta '<pipe-message>mutt2task add<enter>'
-macro index,pager ,tA '<pipe-message>mutt2task annotate<enter>'
-macro index,pager ,tf '<pipe-message>mutt2task find<enter>'
+macro index,pager ,tA '<pipe-message>mutt2task annotate<enter>F'
 macro index,pager ,td '<pipe-message>mutt2task done<enter>'
+macro index,pager ,tf '<pipe-message>mutt2task find<enter>'
+macro index,pager ,tf '<pipe-message>mutt2task project<enter>'
 ```
