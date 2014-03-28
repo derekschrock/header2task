@@ -52,6 +52,14 @@ case "$1" in
 		task_find all
 		exit 1
 		;;
+	"join")
+		task list >&2
+		printf "Add this to task #: " >&2
+		read task_number 0>&2
+		if [ "$task_number" ] && [ "$message_id" ]; then
+			task "$task_number" annotate "$message_id" 1>/dev/null 2>&1
+		fi
+		;;
 	"project")
 		printf "Project: "
 		read project 0>&2
