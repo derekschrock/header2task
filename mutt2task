@@ -26,17 +26,24 @@ task_find() {
 }
 
 task_annotate() {
-	annotations=""
-	while ! [ "$annotations" ]; do
-		printf "Annotations? (leave empty if none): " 1>&2
-		read annotations 0>&2
-		if [ "$annotations" ]; then
-			task status:pending "$message_id" annotate "$annotations"
-			annotations=""
-		else
-			break
-		fi
-	done
+	if [ -n "$0" ]; then
+		while [ -n "$1" ]; do
+			task "$task_number" status:pending annotate -- "$1"
+			shift
+		done
+	else
+		annotations=""
+		while ! [ "$annotations" ]; do
+			printf "Annotations? (leave empty if none): " 1>&2
+			read annotations 0>&2
+			if [ "$annotations" ]; then
+				task status:pending "$message_id" annotate -- "$annotations"
+				annotations=""
+			else
+				break
+			fi
+		done
+	fi
 }
 
 case "$1" in
