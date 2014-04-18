@@ -32,13 +32,11 @@ task_annotate() {
 			shift
 		done
 	else
-		annotations=""
-		while ! [ "$annotations" ]; do
+		while true; do
 			printf "Annotations? (leave empty if none): " 1>&2
 			read annotations 0>&2
 			if [ "$annotations" ]; then
 				task status:pending "$message_id" annotate -- "$annotations"
-				annotations=""
 			else
 				break
 			fi
