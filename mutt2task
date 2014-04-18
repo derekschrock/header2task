@@ -26,7 +26,7 @@ task_find() {
 }
 
 task_annotate() {
-	if [ -n "$0" ]; then
+	if [ "$#" -gt 0 ]; then
 		while [ -n "$1" ]; do
 			task "$task_number" status:pending annotate -- "$1"
 			shift
