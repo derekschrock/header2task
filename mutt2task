@@ -61,10 +61,11 @@ case "$1" in
 		;;
 	"done")
 		echo "Finding task $message_id" 1>&2
-		task_find list
-		task_annotate
-		if ! task status:pending "$message_id" done 0>&2 1>&2; then
-			echo "can't complete task with id $message_id"
+		if task_find list; then
+			task_annotate
+			if ! task status:pending "$message_id" done 0>&2 1>&2; then
+				echo "can't complete task with id $message_id"
+			fi
 		fi
 		exit 1
 		;;
