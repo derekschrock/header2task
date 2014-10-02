@@ -62,7 +62,7 @@ case "$1" in
 		echo "Finding task $message_id" 1>&2
 		if task_find list; then
 			task_annotate
-			if ! task status:pending "$message_id" done 0>&2 1>&2; then
+			if ! task status:pending description.has:"$message_id" done 0>&2 1>&2; then
 				echo "can't complete task with id $message_id"
 			fi
 		fi
