@@ -36,7 +36,7 @@ task_annotate() {
 			printf "Annotations? (leave empty if none): " 1>&2
 			read annotations 0>&2
 			if [ "$annotations" ]; then
-				task status:pending "$message_id" annotate -- "$annotations"
+				task status:pending description.has:"$message_id" annotate -- "$annotations"
 			else
 				break
 			fi
@@ -84,7 +84,7 @@ case "$1" in
 		printf "Project: "
 		read project 0>&2
 		if [ "$project" ]; then
-			if ! task "$message_id" modify project:"$project"; then
+			if ! task description.has:"$message_id" modify project:"$project"; then
 				echo "Can't change the project for $message_id"
 			fi
 		fi
