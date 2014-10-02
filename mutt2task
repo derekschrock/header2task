@@ -18,7 +18,7 @@ while IFS=: read k v; do
 done
 
 task_find() {
-	if ! task "$message_id" "$1" 1>&2; then
+	if ! task description.has:"$message_id" "$1" 1>&2; then
 		echo "no task found" 1>&2
 		return 1
 	fi
