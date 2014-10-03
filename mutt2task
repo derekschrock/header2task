@@ -7,6 +7,7 @@ while IFS=: read k v; do
 	case "$k" in
 		"message-id")
 			export message_id="$(echo $v | sed 's/[<>]//g')"
+			_message_id="$(echo $message_id | sed 's#/#\\/#g')"
 			;;
 		"from")
 			export from="$(echo $v | sed 's/[<>]//g')"
@@ -18,7 +19,7 @@ while IFS=: read k v; do
 done
 
 task_find() {
-	if ! task rc.regex:off /"$message_id"/ "$1" 1>&2; then
+	if ! task rc.regex:off /"$_message_id"/ "$1" 1>&2; then
 		echo "no task found" 1>&2
 		return 1
 	fi
@@ -36,7 +37,7 @@ task_annotate() {
 			printf "Annotations? (leave empty if none): " 1>&2
 			read annotations 0>&2
 			if [ "$annotations" ]; then
-				task status:pending rc.regex:off /"$message_id"/ annotate -- "$annotations"
+				task status:pending rc.regex:off /"$_message_id"/ annotate -- "$annotations"
 			else
 				break
 			fi
@@ -62,7 +63,7 @@ case "$1" in
 		echo "Finding task $message_id" 1>&2
 		if task_find list; then
 			task_annotate
-			if ! task status:pending rc.regex:off /"$message_id"/ done 0>&2 1>&2; then
+			if ! task status:pending rc.regex:off /"$_message_id"/ done 0>&2 1>&2; then
 				echo "can't complete task with id $message_id"
 			fi
 		fi
@@ -84,7 +85,7 @@ case "$1" in
 		printf "Project: "
 		read project 0>&2
 		if [ "$project" ]; then
-			if ! task rc.regex:off /"$message_id"/ modify project:"$project"; then
+			if ! task rc.regex:off /"$_message_id"/ modify project:"$project"; then
 				echo "Can't change the project for $message_id"
 			fi
 		fi
