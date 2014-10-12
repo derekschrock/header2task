@@ -9,4 +9,5 @@ macro index,pager ,td '<pipe-message>mutt2task done<enter>'
 macro index,pager ,tf '<pipe-message>mutt2task find<enter>'
 macro index,pager ,tj '<pipe-message>mutt2task join<enter>F'
 macro index,pager ,tp '<pipe-message>mutt2task project<enter>'
+macro index,pager ,te '<pipe-message>mutt2task edit<enter>'
 ```
