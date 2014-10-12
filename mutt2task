@@ -18,6 +18,11 @@ while IFS=: read k v; do
 	esac
 done
 
+if [ -z "$message_id" ]; then
+	echo "Can't find message-id in message" 1>&2
+	exit 1
+fi
+
 task_find() {
 	if ! task rc.regex:off /"$_message_id"/ "$1" 1>&2; then
 		echo "no task found" 1>&2
