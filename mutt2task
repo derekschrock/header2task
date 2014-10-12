@@ -33,8 +33,10 @@ task_find() {
 
 task_annotate() {
 	if [ "$#" -gt 0 ]; then
-		while [ -n "$1" ]; do
-			task "$task_number" status:pending annotate -- "$1"
+		while [ "$#" -gt 0 ]; do
+			if [ -n "$1" ]; then
+				task "$task_number" status:pending annotate -- "$1"
+			fi
 			shift
 		done
 	else
