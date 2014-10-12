@@ -18,6 +18,8 @@ while IFS=: read k v; do
 	esac
 done
 
+exec 0>&-
+
 if [ -z "$message_id" ]; then
 	echo "Can't find message-id in message" 1>&2
 	exit 1
