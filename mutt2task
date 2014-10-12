@@ -43,7 +43,7 @@ task_annotate() {
 		while true; do
 			printf "Annotations? (leave empty if none): " 1>&2
 			read annotations 0>&2
-			if [ "$annotations" ]; then
+			if [ -n "$annotations" ]; then
 				task status:pending rc.regex:off /"$_message_id"/ annotate -- "$annotations"
 			else
 				break
@@ -56,7 +56,7 @@ case "$1" in
 	"add")
 		printf "task description: " 1>&2
 		read description 0>&2
-		if [ "$description" ] ; then
+		if [ -n "$description" ] ; then
 			task_number="$(task add -- "$description" | awk -F"[ .]" '{ print $3 }')"
 			if [ "$task_number" ] && [ "$message_id" ]; then
 				task_annotate "$message_id" "$from" "$subject"
@@ -84,14 +84,14 @@ case "$1" in
 		task list >&2
 		printf "Add this to task #: " >&2
 		read task_number 0>&2
-		if [ "$task_number" ] && [ "$message_id" ]; then
+		if [ -n "$task_number" ]; then
 			task_annotate "$message_id" 1>/dev/null 2>&1
 		fi
 		;;
 	"project")
 		printf "Project: "
 		read project 0>&2
-		if [ "$project" ]; then
+		if [ -n "$project" ]; then
 			if ! task rc.regex:off /"$_message_id"/ modify project:"$project"; then
 				echo "Can't change the project for $message_id"
 			fi
