@@ -2,15 +2,15 @@
 
 while IFS=: read k v; do
 	if [ -z "$k" ]; then break; fi
-	k=$(awk -vk="$k" 'BEGIN { printf "%s",tolower(k) }')
+	k="$(awk -vk="$k" 'BEGIN { printf "%s",tolower(k) }')"
 	v="${v# *}"
 	case "$k" in
 		"message-id")
-			message_id="$(echo $v | sed 's/[<>]//g')"
-			_message_id="$(echo $message_id | sed 's#/#\\/#g')"
+			message_id="$(echo "$v" | sed 's/[<>]//g')"
+			_message_id="$(echo "$message_id" | sed 's#/#\\/#g')"
 			;;
 		"from")
-			from="$(echo $v | sed 's/[<>]//g')"
+			from="$(echo "$v" | sed 's/[<>]//g')"
 			;;
 		"subject")
 			subject="$v"
