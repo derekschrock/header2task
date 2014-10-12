@@ -76,6 +76,9 @@ case "$1" in
 		fi
 		exit 1
 		;;
+	"edit")
+		task \( status:pending or status:complete \) /"$_message_id"/ edit 1>&2 0>&2
+		;;
 	"find")
 		task_find all
 		exit 1
