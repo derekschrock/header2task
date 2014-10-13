@@ -1,4 +1,5 @@
-Script to manipulate taskwarrior tasks when passed a raw email via stdin. Annotating the task with the email's message-id, from, and subject headers.
+Script to manipulate taskwarrior tasks when passed a raw email via stdin.
+Annotating the task with the email's message-id, from, and subject headers.
 
 With header2task in PATH add something like this to a muttrc file:
 
