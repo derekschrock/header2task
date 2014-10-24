@@ -1,29 +1,66 @@
 #!/usr/bin/env sh
 
-while IFS=: read k v; do
-	if [ -z "$k" ]; then break; fi
-	k="$(awk -vk="$k" 'BEGIN { printf "%s",tolower(k) }')"
-	v="${v# *}"
-	case "$k" in
-		"message-id")
-			message_id="$(echo "$v" | sed 's/[<>]//g')"
-			_message_id="$(echo "$message_id" | sed 's#/#\\/#g')"
+process_task() {
+	command="$1"
+	if [ -z "$message_id" ]; then
+		echo "Can't find message-id in message" 1>&2
+		exit 1
+	fi
+
+	case "$command" in
+		"add")
+			printf "task description: " 1>&2
+			read description 0>&2
+			if [ -n "$description" ] ; then
+				task_number="$(task rc.verbose:new-id add -- "$description" | awk -F"[ .]" '$3 ~ /[0-9]+/ { print $3 }')"
+				if [ -n "$task_number" ]; then
+					task_annotate "$message_id" "$from" "$subject"
+				fi
+			fi
 			;;
-		"from")
-			from="$(echo "$v" | sed 's/[<>]//g')"
+		"annotate")
+			task_annotate
 			;;
-		"subject")
-			subject="$v"
+		"done")
+			echo "Finding task $message_id" 1>&2
+			if task_find list; then
+				task_annotate
+				if ! task status:pending rc.regex:off /"$_message_id"/ "done" 0>&2 1>&2; then
+					echo "can't complete task with id $message_id"
+				fi
+			fi
+			exit 1
+			;;
+		"edit")
+			task \( status:pending or status:complete \) /"$_message_id"/ edit 1>&2 0>&2
+			;;
+		"find")
+			task_find all
+			exit 1
+			;;
+		"join")
+			task list >&2
+			printf "Add this to task #: " >&2
+			read task_number 0>&2
+			if [ -n "$task_number" ]; then
+				task_annotate "$message_id" 1>/dev/null 2>&1
+			fi
+			;;
+		"project")
+			printf "Project: "
+			read project 0>&2
+			if [ -n "$project" ]; then
+				if ! task rc.regex:off /"$_message_id"/ modify project:"$project"; then
+					echo "Can't change the project for $message_id"
+				fi
+			fi
+			exit 1
+			;;
+		*)
 			;;
 	esac
-done
 
-exec 0>&-
-
-if [ -z "$message_id" ]; then
-	echo "Can't find message-id in message" 1>&2
-	exit 1
-fi
+}
 
 task_find() {
 	if ! task rc.regex:off /"$_message_id"/ "$1" 1>&2; then
@@ -54,57 +91,41 @@ task_annotate() {
 	fi
 }
 
-case "$1" in
-	"add")
-		printf "task description: " 1>&2
-		read description 0>&2
-		if [ -n "$description" ] ; then
-			task_number="$(task rc.verbose:new-id add -- "$description" | awk -F"[ .]" '$3 ~ /[0-9]+/ { print $3 }')"
-			if [ -n "$task_number" ]; then
-				task_annotate "$message_id" "$from" "$subject"
-			fi
-		fi
-		;;
-	"annotate")
-		task_annotate
-		;;
-	"done")
-		echo "Finding task $message_id" 1>&2
-		if task_find list; then
-			task_annotate
-			if ! task status:pending rc.regex:off /"$_message_id"/ "done" 0>&2 1>&2; then
-				echo "can't complete task with id $message_id"
-			fi
-		fi
-		exit 1
-		;;
-	"edit")
-		task \( status:pending or status:complete \) /"$_message_id"/ edit 1>&2 0>&2
-		;;
-	"find")
-		task_find all
-		exit 1
-		;;
-	"join")
-		task list >&2
-		printf "Add this to task #: " >&2
-		read task_number 0>&2
-		if [ -n "$task_number" ]; then
-			task_annotate "$message_id" 1>/dev/null 2>&1
-		fi
-		;;
-	"project")
-		printf "Project: "
-		read project 0>&2
-		if [ -n "$project" ]; then
-			if ! task rc.regex:off /"$_message_id"/ modify project:"$project"; then
-				echo "Can't change the project for $message_id"
-			fi
-		fi
-		exit 1
-		;;
-	*)
-		;;
-esac
+awk '\
+/^$/ { exit }
+NR == 1 { p = $0; next }
+
+{
+	if( $0 ~ /^[ \t]+/ ) {
+		if( header ) {
+			printf("%s ", p)
+		}
+	} else {
+		printf("%s\n", p)
+		header=1
+	}
+	p = $0
+} END { printf "\n\n" } ' | \
+while IFS=: read k v; do
+	if [ -z "$k" ]; then
+		exec 0>&-
+		process_task "$1";
+		break;
+	fi
+	k="$(awk -vk="$k" 'BEGIN { printf "%s",tolower(k) }')"
+	v="${v# *}"
+	case "$k" in
+		"message-id")
+			message_id="$(echo "$v" | sed 's/[<>]//g')"
+			_message_id="$(echo "$message_id" | sed 's#/#\\/#g')"
+			;;
+		"from")
+			from="$(echo "$v" | sed 's/[<>]//g')"
+			;;
+		"subject")
+			subject="$v"
+			;;
+	esac
+done
 
 exit 0
