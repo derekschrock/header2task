@@ -4,7 +4,7 @@ process_task() {
 	command="$1"
 	if [ -z "$message_id" ]; then
 		echo "Can't find message-id in message" 1>&2
-		exit 1
+		return 1
 	fi
 
 	case "$command" in
@@ -29,14 +29,14 @@ process_task() {
 					echo "can't complete task with id $message_id"
 				fi
 			fi
-			exit 1
+			return 1
 			;;
 		"edit")
 			task \( status:pending or status:complete \) /"$_message_id"/ edit 1>&2 0>&2
 			;;
 		"find")
 			task_find all
-			exit 1
+			return 1
 			;;
 		"join")
 			task list >&2
@@ -54,7 +54,7 @@ process_task() {
 					echo "Can't change the project for $message_id"
 				fi
 			fi
-			exit 1
+			return 1
 			;;
 		*)
 			;;
@@ -110,7 +110,8 @@ while IFS=: read k v; do
 	if [ -z "$k" ]; then
 		exec 0>&-
 		process_task "$1";
-		break;
+		rc="$?"
+		exit "$rc"
 	fi
 	k="$(awk -vk="$k" 'BEGIN { printf "%s",tolower(k) }')"
 	v="${v# *}"
@@ -128,4 +129,3 @@ while IFS=: read k v; do
 	esac
 done
 
-exit 0
