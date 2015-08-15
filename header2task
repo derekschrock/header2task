@@ -9,13 +9,21 @@ process_task() {
 
 	case "$command" in
 		"add")
-			printf "task description: " 1>&2
-			read description 0>&2
-			if [ -n "$description" ] ; then
-				task_number="$(task rc.verbose:new-id add -- "$description" | awk -F"[ .]" '$3 ~ /[0-9]+/ { print $3 }')"
-				if [ -n "$task_number" ]; then
-					task_annotate "$message_id" "$from" "$subject"
+			while [ -z "$description" ]; do
+				printf "task description: " 1>&2
+				read description 0>&2
+				if [ -z "$description" ]; then
+					if [ -n "$subject" ]; then
+						description="$subject"
+					else
+						echo "subject is null - provide a description"
+					fi
 				fi
+			done
+
+			task_number="$(task rc.verbose:new-id add -- "$description" | awk -F"[ .]" '$3 ~ /[0-9]+/ { print $3 }')"
+			if [ -n "$task_number" ]; then
+				task_annotate "$message_id" "$from" "$subject"
 			fi
 			;;
 		"annotate")
