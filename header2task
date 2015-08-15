@@ -10,7 +10,7 @@ process_task() {
 	case "$command" in
 		"add")
 			while [ -z "$description" ]; do
-				printf "task description: " 1>&2
+				printf "task description (empty uses subject): " 1>&2
 				read description 0>&2
 				if [ -z "$description" ]; then
 					if [ -n "$subject" ]; then
