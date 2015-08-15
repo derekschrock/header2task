@@ -43,7 +43,7 @@ process_task() {
 			task \( status:pending or status:complete \) /"$_message_id"/ edit 1>&2 0>&2
 			;;
 		"find")
-			task_find all
+			task_find '(status:pending or status:completed)'
 			return 1
 			;;
 		"join")
