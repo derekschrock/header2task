@@ -16,12 +16,13 @@ process_task() {
 					if [ -n "$subject" ]; then
 						description="$subject"
 					else
-						echo "subject is null - provide a description"
+						echo "subject is null - provide a description" 1>&2
 					fi
 				fi
 			done
 
-			task_number="$(task rc.verbose:new-id add -- "$description" | awk -F"[ .]" '$3 ~ /[0-9]+/ { print $3 }')"
+			echo "Creating task with description: $description" 1>&2
+			task_number="$(task rc.verbose:new-id add -- "$description" 2>/dev/null | awk -F"[ .]" '$3 ~ /[0-9]+/ { print $3 }')"
 			if [ -n "$task_number" ]; then
 				task_annotate "$message_id" "$from" "$subject"
 			fi
@@ -34,7 +35,7 @@ process_task() {
 			if task_find list; then
 				task_annotate
 				if ! task status:pending rc.regex:off /"$_message_id"/ "done" 0>&2 1>&2; then
-					echo "can't complete task with id $message_id"
+					echo "can't complete task with id $message_id" 1>&2
 				fi
 			fi
 			return 1
@@ -59,7 +60,7 @@ process_task() {
 			read project 0>&2
 			if [ -n "$project" ]; then
 				if ! task rc.regex:off /"$_message_id"/ modify project:"$project"; then
-					echo "Can't change the project for $message_id"
+					echo "Can't change the project for $message_id" 1>&2
 				fi
 			fi
 			return 1
@@ -82,6 +83,7 @@ task_annotate() {
 	if [ "$#" -gt 0 ]; then
 		while [ "$#" -gt 0 ]; do
 			if [ -n "$1" ]; then
+				echo "Annotating $task_number with $1" 1>&2
 				task "$task_number" status:pending annotate -- "$1"
 			fi
 			shift
