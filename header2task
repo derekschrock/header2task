@@ -118,7 +118,7 @@ NR == 1 { p = $0; next }
 } END { printf "\n\n" } ' | \
 while IFS=: read k v; do
 	if [ -z "$k" ]; then
-		exec 0>&-
+		#exec 0>&-
 		process_task "$1";
 		rc="$?"
 		exit "$rc"
